@@ -2,7 +2,12 @@
 #define TRUE 1
 #define FALSE 0
 
+#define MAX_VERTEX_COUNT 1000
+#define SIZE_OF_VERTEX 2
+#define SIZE_OF_COLOR 3
+
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <GL/gl.h>
 #include <SDL/SDL.h>
@@ -12,18 +17,29 @@ Uint32 lastTickTime;
 
 BOOL doneWindow = FALSE;
 
+GLfloat* vertexArray = NULL;
+GLfloat* colorArray = NULL;
+
 BOOL init()
 {
 	freopen( "CON", "wt", stdout );
 	freopen( "CON", "wt", stderr );
 
+	if ((vertexArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_VERTEX)) == NULL || (colorArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_COLOR)) == NULL)
+	{
+		perror("error allociating vertex arrays");
+		return FALSE;
+	}
+
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
+		perror("error setting up SDL");
 		return FALSE;
 	}
 
 	if((screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL)) == NULL)
 	{
+		perror("error setting video mode");
 		return FALSE;
 	}
 
@@ -44,12 +60,27 @@ BOOL init()
 
 void deinit()
 {
+	free(vertexArray);
+	free(colorArray);
+
 	SDL_Quit();
 }
 
 void update(double delta)
 {
-	//
+	vertexArray[0] = 1.0f;
+	vertexArray[1] = 1.0f;
+        vertexArray[2] = 100.0f;
+	vertexArray[3] = 1.0f;
+	vertexArray[4] = 100.0f;
+	vertexArray[5] = 100.0f;
+	
+	vertexArray[6] = 100.0f;
+	vertexArray[7] = 100.0f;
+        vertexArray[8] = 200.0f;
+	vertexArray[9] = 200.0f;
+	vertexArray[10] = 100.0f;
+	vertexArray[11] = 200.0f;
 }
 
 void render()
@@ -57,12 +88,17 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
-	glBegin(GL_QUADS);
-	glColor3f(1, 0, 0); glVertex3f(0, 0, 0);
-	glColor3f(1, 1, 0); glVertex3f(100, 0, 0);
-	glColor3f(1, 0, 1); glVertex3f(100, 100, 0);
-	glColor3f(1, 1, 1); glVertex3f(0, 100, 0);
-	glEnd();
+	//enable vertex array writing
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	//set the array the GPU should use
+	glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+	
+	//draw the first 8 elements as a triangle
+	glDrawArrays(GL_TRIANGLES, 0, 16);
+	
+	//disable vertex array writing
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	SDL_GL_SwapBuffers();
 }
