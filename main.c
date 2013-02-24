@@ -21,13 +21,23 @@ BOOL init()
 	{
 		return FALSE;
 	}
-	
-	lastTickTime = SDL_GetTicks();
 
-	if((screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+	if((screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL)) == NULL)
 	{
 		return FALSE;
 	}
+
+	glClearColor(0, 0, 0, 0);
+	glViewport(0, 0, 640, 480);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 640, 480, 0, 1, -1);
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_TEXTURE_2D);
+	glLoadIdentity();
+	//printf("OpenGL Version: %s by %s\n", glGetString(GL_VERSION), glGetString(GL_VENDOR));
+
+	lastTickTime = SDL_GetTicks();
 
 	return TRUE;
 }
@@ -44,7 +54,17 @@ void update(double delta)
 
 void render()
 {
-	//
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	glBegin(GL_QUADS);
+	glColor3f(1, 0, 0); glVertex3f(0, 0, 0);
+	glColor3f(1, 1, 0); glVertex3f(100, 0, 0);
+	glColor3f(1, 0, 1); glVertex3f(100, 100, 0);
+	glColor3f(1, 1, 1); glVertex3f(0, 100, 0);
+	glEnd();
+
+	SDL_GL_SwapBuffers();
 }
 
 int main(int argc, char* argv[])
