@@ -74,6 +74,15 @@ void update(double delta)
 	vertexArray[3] = 1.0f;
 	vertexArray[4] = 100.0f;
 	vertexArray[5] = 100.0f;
+	colorArray[0] = 1.0f;
+	colorArray[1] = 0.0f;
+	colorArray[2] = 0.0f;
+	colorArray[3] = 0.0f;
+	colorArray[4] = 1.0f;
+	colorArray[5] = 0.0f;
+	colorArray[6] = 0.0f;
+	colorArray[7] = 0.0f;
+	colorArray[8] = 1.0f;
 	
 	vertexArray[6] = 100.0f;
 	vertexArray[7] = 100.0f;
@@ -81,6 +90,15 @@ void update(double delta)
 	vertexArray[9] = 200.0f;
 	vertexArray[10] = 100.0f;
 	vertexArray[11] = 200.0f;
+	colorArray[9] = 1.0f;
+	colorArray[10] = 0.0f;
+	colorArray[11] = 0.0f;
+	colorArray[12] = 0.0f;
+	colorArray[13] = 1.0f;
+	colorArray[14] = 0.0f;
+	colorArray[15] = 0.0f;
+	colorArray[16] = 0.0f;
+	colorArray[17] = 1.0f;
 }
 
 void render()
@@ -90,15 +108,18 @@ void render()
 	
 	//enable vertex array writing
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	//set the array the GPU should use
-	glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-	
+	glVertexPointer(SIZE_OF_VERTEX, GL_FLOAT, 0, vertexArray);
+	glColorPointer(SIZE_OF_COLOR, GL_FLOAT, 0, colorArray);
+
 	//draw the first 8 elements as a triangle
 	glDrawArrays(GL_TRIANGLES, 0, 16);
 	
 	//disable vertex array writing
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 
 	SDL_GL_SwapBuffers();
 }
