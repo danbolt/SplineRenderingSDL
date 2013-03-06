@@ -8,12 +8,14 @@
 
 #define GLEW_STATIC
 
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "glew.h"
-//#include <GL/gl.h>
 #include <SDL/SDL.h>
+
+const char* FRAGMENT_SHADER_FILENAME = "QuadraticPS.glsl";
 
 SDL_Surface* screen;
 Uint32 lastTickTime;
@@ -22,6 +24,26 @@ BOOL doneWindow = FALSE;
 
 GLfloat* vertexArray = NULL;
 GLfloat* colorArray = NULL;
+
+GLuint myProgObj;
+
+GLuint myFragObj;
+GLchar* fSource;
+
+// this method was found from OpenGL: A Primer by Edward Angel
+static char* readShaderSource(const char* shaderFile)
+{
+	struct stat statBuf;
+	FILE* fp = fopen(FRAGMENT_SHADER_FILENAME, "r");
+	char* buf;
+	
+	stat(shaderFile, &statBuf);
+	buf = (char*) malloc((statBuf.st_size + 1) * sizeof(char));
+	fread(buf, 1, statBuf.st_size, fp);
+	buf[statBuf.st_size] = '\0';
+	fclose(fp);
+	return buf;
+}
 
 BOOL init()
 {
@@ -54,6 +76,16 @@ BOOL init()
 		return FALSE;
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	
+	myProgObj = glCreateProgram();
+	myFragObj = glCreateShader(GL_FRAGMENT_SHADER);
+	
+	glAttachShader(myProgObj, myFragObj);
+	fSource = readShaderSource(FRAGMENT_SHADER_FILENAME);
+	glShaderSource(myFragObj, 1, &fSource, NULL);
+	glCompileShader(myFragObj);
+	glLinkProgram(myProgObj);
+	glUseProgram(myProgObj);
 
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, 640, 480);
@@ -74,6 +106,8 @@ void deinit()
 {
 	free(vertexArray);
 	free(colorArray);
+	
+	free(fSource);
 
 	SDL_Quit();
 }
