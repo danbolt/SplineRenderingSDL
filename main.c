@@ -48,7 +48,7 @@ static char* readShaderSource(const char* shaderFile)
 BOOL init()
 {
 	freopen( "CON", "wt", stdout );
-	freopen( "CON", "wt", stderr );
+	//freopen( "CON", "wt", stderr );
 
 	if ((vertexArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_VERTEX)) == NULL || (colorArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_COLOR)) == NULL)
 	{
@@ -79,13 +79,31 @@ BOOL init()
 	
 	myProgObj = glCreateProgram();
 	myFragObj = glCreateShader(GL_FRAGMENT_SHADER);
-	
+
 	glAttachShader(myProgObj, myFragObj);
 	fSource = readShaderSource(FRAGMENT_SHADER_FILENAME);
 	glShaderSource(myFragObj, 1, &fSource, NULL);
 	glCompileShader(myFragObj);
 	glLinkProgram(myProgObj);
 	glUseProgram(myProgObj);
+	
+	GLint isCompiled = 0;
+	glGetShaderiv(myFragObj, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetShaderiv(myFragObj, GL_INFO_LOG_LENGTH, &maxLength);
+		
+		GLchar infoLog[maxLength];
+		glGetShaderInfoLog(myFragObj, maxLength, &maxLength, infoLog);
+
+		fprintf(stderr, "Error Compiling Fragment Shader:\n%s\n", infoLog);
+
+		glDeleteShader(myFragObj);
+		free(fSource);
+		
+		return FALSE;
+	}
 
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, 640, 480);
@@ -106,7 +124,7 @@ void deinit()
 {
 	free(vertexArray);
 	free(colorArray);
-	
+
 	free(fSource);
 
 	SDL_Quit();
@@ -114,12 +132,12 @@ void deinit()
 
 void update(double delta)
 {
-	vertexArray[0] = 1.0f;
-	vertexArray[1] = 1.0f;
-        vertexArray[2] = 100.0f;
-	vertexArray[3] = 1.0f;
-	vertexArray[4] = 100.0f;
-	vertexArray[5] = 100.0f;
+	vertexArray[0] = 300.0f;
+	vertexArray[1] = 200.0f;
+        vertexArray[2] = 500.0f;
+	vertexArray[3] = 200.0f;
+	vertexArray[4] = 400.0f;
+	vertexArray[5] = 300.0f;
 	colorArray[0] = 1.0f;
 	colorArray[1] = 0.0f;
 	colorArray[2] = 0.0f;
@@ -130,21 +148,21 @@ void update(double delta)
 	colorArray[7] = 0.0f;
 	colorArray[8] = 1.0f;
 	
-	vertexArray[6] = 100.0f;
+	vertexArray[6] = 150.0f;
 	vertexArray[7] = 100.0f;
         vertexArray[8] = 200.0f;
 	vertexArray[9] = 200.0f;
 	vertexArray[10] = 100.0f;
 	vertexArray[11] = 200.0f;
-	colorArray[9] = 1.0f;
-	colorArray[10] = 0.0f;
+	colorArray[9] = 0.75f;
+	colorArray[10] = 0.75f;
 	colorArray[11] = 0.0f;
-	colorArray[12] = 0.0f;
-	colorArray[13] = 1.0f;
-	colorArray[14] = 0.0f;
+	colorArray[12] = 0.75f;
+	colorArray[13] = 0.0f;
+	colorArray[14] = 0.75f;
 	colorArray[15] = 0.0f;
-	colorArray[16] = 0.0f;
-	colorArray[17] = 1.0f;
+	colorArray[16] = 0.75f;
+	colorArray[17] = 0.75f;
 }
 
 void render()
