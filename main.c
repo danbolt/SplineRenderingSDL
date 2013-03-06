@@ -24,6 +24,7 @@ BOOL doneWindow = FALSE;
 
 GLfloat* vertexArray = NULL;
 GLfloat* colorArray = NULL;
+GLfloat* textureArray = NULL;
 
 GLuint myProgObj;
 
@@ -50,7 +51,7 @@ BOOL init()
 	freopen( "CON", "wt", stdout );
 	//freopen( "CON", "wt", stderr );
 
-	if ((vertexArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_VERTEX)) == NULL || (colorArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_COLOR)) == NULL)
+	if ((vertexArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_VERTEX)) == NULL || (colorArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_COLOR)) == NULL || (textureArray = malloc(sizeof(GLfloat) * MAX_VERTEX_COUNT * SIZE_OF_VERTEX)) == NULL)
 	{
 		perror("error allociating vertex arrays");
 		return FALSE;
@@ -82,7 +83,7 @@ BOOL init()
 
 	glAttachShader(myProgObj, myFragObj);
 	fSource = readShaderSource(FRAGMENT_SHADER_FILENAME);
-	glShaderSource(myFragObj, 1, &fSource, NULL);
+	glShaderSource(myFragObj, 1, (const GLchar**)&fSource, NULL);
 	glCompileShader(myFragObj);
 	glLinkProgram(myProgObj);
 	glUseProgram(myProgObj);
@@ -113,7 +114,6 @@ BOOL init()
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_TEXTURE_2D);
 	glLoadIdentity();
-	//printf("OpenGL Version: %s by %s\n", glGetString(GL_VERSION), glGetString(GL_VENDOR));
 
 	lastTickTime = SDL_GetTicks();
 
@@ -124,6 +124,7 @@ void deinit()
 {
 	free(vertexArray);
 	free(colorArray);
+	free(textureArray);
 
 	free(fSource);
 
@@ -147,6 +148,13 @@ void update(double delta)
 	colorArray[6] = 0.0f;
 	colorArray[7] = 0.0f;
 	colorArray[8] = 1.0f;
+	textureArray[0] = 0.0f;
+	textureArray[1] = 0.0f;
+	textureArray[2] = 0.5f;
+	textureArray[3] = 0.0f;
+	textureArray[4] = 1.0f;
+	textureArray[5] = 1.0f;
+
 	
 	vertexArray[6] = 150.0f;
 	vertexArray[7] = 100.0f;
@@ -163,6 +171,12 @@ void update(double delta)
 	colorArray[15] = 0.0f;
 	colorArray[16] = 0.75f;
 	colorArray[17] = 0.75f;
+	textureArray[6] = 0.0f;
+	textureArray[7] = 0.0f;
+	textureArray[8] = 0.5f;
+	textureArray[9] = 0.0f;
+	textureArray[10] = 1.0f;
+	textureArray[11] = 1.0f;
 }
 
 void render()
@@ -173,10 +187,12 @@ void render()
 	//enable vertex array writing
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	//set the array the GPU should use
 	glVertexPointer(SIZE_OF_VERTEX, GL_FLOAT, 0, vertexArray);
 	glColorPointer(SIZE_OF_COLOR, GL_FLOAT, 0, colorArray);
+	glTexCoordPointer(SIZE_OF_VERTEX, GL_FLOAT, 0, textureArray);
 
 	//draw the first 8 elements as a triangle
 	glDrawArrays(GL_TRIANGLES, 0, 16);
@@ -184,6 +200,7 @@ void render()
 	//disable vertex array writing
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	SDL_GL_SwapBuffers();
 }
