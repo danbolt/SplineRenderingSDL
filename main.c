@@ -6,10 +6,13 @@
 #define SIZE_OF_VERTEX 2
 #define SIZE_OF_COLOR 3
 
+#define GLEW_STATIC
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <GL/gl.h>
+#include "glew.h"
+//#include <GL/gl.h>
 #include <SDL/SDL.h>
 
 SDL_Surface* screen;
@@ -42,6 +45,15 @@ BOOL init()
 		perror("error setting video mode");
 		return FALSE;
 	}
+	
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		return FALSE;
+	}
+	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, 640, 480);
