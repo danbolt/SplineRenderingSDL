@@ -14,7 +14,7 @@ void main (void)
      float sd = ((p.x * p.x) - p.y)/sqrt(fx*fx + fy*fy);
 
      //linear alpha
-     float alpha = 0.5 - sd;
+     float alpha = 1.0 - (0.5 - sd);
      
      if (alpha > 1)
      {
