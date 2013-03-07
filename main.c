@@ -16,6 +16,7 @@
 #include <SDL/SDL.h>
 
 const char* FRAGMENT_SHADER_FILENAME = "QuadraticPS.glsl";
+const char* VERTEX_SHADER_FILENAME = "QuadraticVS.glsl";
 
 SDL_Surface* screen;
 Uint32 lastTickTime;
@@ -29,13 +30,15 @@ GLfloat* textureArray = NULL;
 GLuint myProgObj;
 
 GLuint myFragObj;
+GLuint myVertObj;
 GLchar* fSource;
+GLchar* vSource;
 
 // this method was found from OpenGL: A Primer by Edward Angel
-static char* readShaderSource(const char* shaderFile)
+char* readShaderSource(const char* shaderFile)
 {
 	struct stat statBuf;
-	FILE* fp = fopen(FRAGMENT_SHADER_FILENAME, "r");
+	FILE* fp = fopen(shaderFile, "r");
 	char* buf;
 	
 	stat(shaderFile, &statBuf);
@@ -80,17 +83,18 @@ BOOL init()
 	
 	myProgObj = glCreateProgram();
 	myFragObj = glCreateShader(GL_FRAGMENT_SHADER);
+	myVertObj = glCreateShader(GL_VERTEX_SHADER);
 
 	glAttachShader(myProgObj, myFragObj);
+	glAttachShader(myProgObj, myVertObj);
 	fSource = readShaderSource(FRAGMENT_SHADER_FILENAME);
+	vSource = readShaderSource(VERTEX_SHADER_FILENAME);
+
 	glShaderSource(myFragObj, 1, (const GLchar**)&fSource, NULL);
 	glCompileShader(myFragObj);
-	glLinkProgram(myProgObj);
-	glUseProgram(myProgObj);
-	
-	GLint isCompiled = 0;
-	glGetShaderiv(myFragObj, GL_COMPILE_STATUS, &isCompiled);
-	if (isCompiled == GL_FALSE)
+	GLint isCompiledFrag = 0;
+	glGetShaderiv(myFragObj, GL_COMPILE_STATUS, &isCompiledFrag);
+	if (isCompiledFrag == GL_FALSE)
 	{
 		GLint maxLength = 0;
 		glGetShaderiv(myFragObj, GL_INFO_LOG_LENGTH, &maxLength);
@@ -102,9 +106,35 @@ BOOL init()
 
 		glDeleteShader(myFragObj);
 		free(fSource);
+		free(vSource);
 		
 		return FALSE;
 	}
+	
+
+	glShaderSource(myVertObj, 1, (const GLchar**)&vSource, NULL);
+	glCompileShader(myVertObj);
+        GLint isCompiledVert = 0;
+	glGetShaderiv(myVertObj, GL_COMPILE_STATUS, &isCompiledVert);
+	if (isCompiledVert == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetShaderiv(myVertObj, GL_INFO_LOG_LENGTH, &maxLength);
+
+		GLchar infoLog[maxLength];
+		glGetShaderInfoLog(myVertObj, maxLength, &maxLength, infoLog);
+
+		fprintf(stderr, "Error Compiling Vertex Shader:\n%s\n", infoLog);
+
+		glDeleteShader(myVertObj);
+		free(fSource);
+		free(vSource);
+		
+		return FALSE;
+	}
+
+	glLinkProgram(myProgObj);
+	glUseProgram(myProgObj);
 
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, 640, 480);
@@ -127,6 +157,7 @@ void deinit()
 	free(textureArray);
 
 	free(fSource);
+	free(vSource);
 
 	SDL_Quit();
 }
