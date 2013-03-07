@@ -23,5 +23,6 @@ void main (void)
           alpha = 0;
      }
      
-     gl_FragColor = vec4(0.0, 1.0, 0.0, alpha);
+     gl_FragColor = gl_Color;
+     gl_FragColor.w = alpha;
 }
