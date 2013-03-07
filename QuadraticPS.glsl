@@ -1,15 +1,17 @@
 void main (void)
 {
+     vec2 p = gl_TexCoord[0].st;
+
      //gradients
-     vec4 px = dFdx(gl_FragCoord);
-     vec4 py = dFdy(gl_FragCoord);
+     vec2 px = dFdx(p);
+     vec2 py = dFdy(p);
      
      //chain rule
-     float fx = ((2 * gl_FragCoord.x) * px.x) - px.y;
-     float fy = ((2 * gl_FragCoord.x) * py.x) - py.y;
+     float fx = ((2 * p.x) * px.x) - px.y;
+     float fy = ((2 * p.x) * py.x) - py.y;
      
      //signed distance
-     float sd = ((gl_FragCoord.x * gl_FragCoord.x) - gl_FragCoord.y)/sqrt(fx*fx + fy*fy);
+     float sd = ((p.x * p.x) - p.y)/sqrt(fx*fx + fy*fy);
 
      //linear alpha
      float alpha = 0.5 - sd;
@@ -23,6 +25,5 @@ void main (void)
           alpha = 0;
      }
      
-     gl_FragColor = gl_Color;
-     gl_FragColor.w = alpha;
+     gl_FragColor = vec4(0.0, 1.0, 0.0, alpha);
 }
